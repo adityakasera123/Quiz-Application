@@ -274,3 +274,148 @@ h1,h2,h3,h4,h5,h6 {
   border-color: var(--accent);
   color: var(--accent);
 }
+/* Primary Button */
+.primary-btn {
+  background: var(--purple-core);
+  border: 1px solid var(--purple-mid);
+  color: #fff;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 20px rgba(139,92,246,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.primary-btn:hover {
+  background: var(--purple-bright);
+  border-color: var(--purple-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px rgba(139,92,246,0.5);
+}
+.primary-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+.primary-btn:hover::after { transform: translateX(100%); }
+
+/* Glow alias */
+.glow-btn { /* inherits from primary-btn */ }
+
+/* Secondary Button */
+.secondary-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-1);
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+.secondary-btn:hover {
+  border-color: var(--glass-border-h);
+  background: var(--glass-bg-hover);
+  transform: translateY(-1px);
+}
+
+/* Text Button */
+.text-btn {
+  background: none; border: none;
+  color: var(--text-2);
+  font-size: 0.9rem; font-weight: 500;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  transition: color 0.2s ease;
+}
+.text-btn:hover { color: var(--text-1); }
+
+.large-btn { padding: 1rem 2rem; font-size: 1.05rem; }
+
+/* ── Profile Dropdown ─────────────────────────────────────────────────────── */
+.profile-container { position: relative; }
+.profile-trigger {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-1);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.profile-trigger:hover { border-color: var(--glass-border-h); }
+.user-avatar {
+  width: 26px; height: 26px;
+  background: var(--purple-core);
+  border-radius: var(--r-full);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 0.75rem;
+  font-family: var(--font-display);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.user-name-display {
+  font-size: 0.88rem; font-weight: 500;
+  max-width: 110px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.chevron-icon { opacity: 0.5; }
+
+.profile-dropdown {
+  position: absolute; top: calc(100% + 0.5rem); right: 0;
+  width: 240px; padding: 1rem;
+  z-index: 200;
+}
+.dropdown-header { display: flex; flex-direction: column; gap: 0.5rem; padding-bottom: 0.5rem; }
+.dropdown-email { font-size: 0.78rem; color: var(--text-2); word-break: break-all; }
+.level-indicator {
+  display: flex; justify-content: space-between;
+  align-items: center; font-size: 0.75rem; font-weight: 600;
+}
+.level-badge {
+  background: rgba(139,92,246,0.15);
+  color: var(--accent);
+  padding: 2px 7px; border-radius: 4px;
+  border: 1px solid rgba(139,92,246,0.3);
+}
+.xp-text { color: var(--text-2); }
+.progress-bar-small {
+  width: 100%; height: 5px;
+  background: var(--border); border-radius: var(--r-full); overflow: hidden;
+}
+.progress-bar-small-fill {
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  transition: width 0.5s ease;
+}
+.dropdown-divider { border: 0; border-top: 1px solid var(--border); margin: 0.75rem 0; }
+.dropdown-actions { display: flex; flex-direction: column; gap: 0.2rem; }
+.dropdown-item {
+  background: none; border: none;
+  color: var(--text-1);
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--r-xs);
+  font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s ease; text-align: left; width: 100%;
+}
+.dropdown-item:hover { background: rgba(139,92,246,0.08); color: var(--accent); }
+.badge-tag {
+  font-size: 0.68rem;
+  background: rgba(245,158,11,0.15);
+  color: #f59e0b;
+  padding: 1px 5px; border-radius: 3px;
+  margin-left: auto; font-weight: 700;
+  border: 1px solid rgba(245,158,11,0.3);
+}

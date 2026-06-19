@@ -53,4 +53,89 @@
       </svg>
       <span class="logo-text">QuizMaster <span class="accent-text">Pro</span></span>
     </div>
-    </body>
+    <div class="header-controls">
+      <!-- Sound Control -->
+      <button id="btn-sound" class="icon-btn" aria-label="Toggle sound effects">
+        <!-- Sound Unmuted Icon -->
+        <svg class="icon-unmuted" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <!-- Sound Muted Icon (Hidden by default) -->
+        <svg class="icon-muted hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+
+      <!-- Theme Switcher Button -->
+      <button id="btn-theme" class="icon-btn" aria-label="Toggle theme">
+        <!-- Sun (Dark theme is active, click for light theme) -->
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <!-- Moon (Light theme is active, click for dark theme - hidden by default) -->
+        <svg class="icon-moon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <!-- Stats Button -->
+      <button id="btn-stats" class="icon-btn hidden" aria-label="View analytics">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </button>
+
+      <!-- User Profile Profile Dropdown -->
+      <div id="profile-container" class="profile-container hidden">
+        <button id="profile-trigger" class="profile-trigger" aria-haspopup="true" aria-expanded="false">
+          <span class="user-avatar" id="avatar-letter">G</span>
+          <span class="user-name-display" id="user-display-name">Guest</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div id="profile-dropdown" class="profile-dropdown glass-card hidden">
+          <div class="dropdown-header">
+            <p class="dropdown-email" id="user-display-email">guest@quizmaster.pro</p>
+            <div class="level-indicator">
+              <span class="level-badge">LVL <span id="user-lvl">1</span></span>
+              <span class="xp-text"><span id="user-xp">0</span> / <span id="user-xp-next">100</span> XP</span>
+            </div>
+            <div class="progress-bar-small">
+              <div class="progress-bar-small-fill" id="user-xp-bar" style="width: 0%"></div>
+            </div>
+          </div>
+          <hr class="dropdown-divider">
+          <div class="dropdown-actions">
+            <button id="btn-dropdown-stats" class="dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              <span>Analytics Dashboard</span>
+            </button>
+            <button id="btn-dropdown-themes" class="dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.34442 19.5 5.5 20 5.5 20.5C5.5 21.3284 6.17157 22 7 22H12Z"></path></svg>
+              <span>Custom Themes <span class="badge-tag" id="theme-unlock-tag">Locked</span></span>
+            </button>
+            <button id="btn-logout" class="dropdown-item text-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</body>
