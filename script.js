@@ -589,3 +589,187 @@ const QUESTIONS = [
     answer: 1
   }
 ];
+
+// ==================== 2. CENTRALIZED STATE MANAGEMENT ====================
+const state = {
+  currentScreen: "auth", // auth | landing | setup | quiz | results | review
+  user: null, // Logged in user profile object, or null (Guest)
+  currentQuestionIndex: 0,
+  score: 0,
+  answered: false,
+  selectedAnswer: null,
+  timer: 15,
+  difficulty: "medium", // easy | medium | hard
+  questionCount: 10,
+  startTime: null,
+  totalTimeTaken: 0,
+  userAnswers: [], // Array of { questionId, selectedIndex, isCorrect, timeTaken }
+  mute: false,
+  quizQuestions: [], // Selected subset of questions for active run
+  
+  // Pro Settings (Unlocked for Logged In users)
+  proModeActive: false,
+  customTimeLimit: 15,
+  selectedCategories: ["JavaScript", "HTML/CSS", "Java", "C++", "DSA", "Fundamentals", "Reasoning"],
+  suddenDeath: false
+};
+
+// Timer reference ID
+let timerInterval = null;
+
+// ==================== 3. AUDIO SYNTHESIZER (WEB AUDIO API) ====================
+const AudioSynth = (() => {
+  let audioCtx = null;
+
+  function initCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    // Resume context if suspended (browser security)
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+  }
+
+  function playSound(type) {
+    if (state.mute) return;
+    try {
+      initCtx();
+      const now = audioCtx.currentTime;
+
+      if (type === "correct") {
+        // High pleasant double-beep chime
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.setValueAtTime(880.00, now + 0.1); // A5
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.08, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === "wrong") {
+        // Low warning warning buzz
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.linearRampToValueAtTime(90, now + 0.25);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.1, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === "complete") {
+        // Harmonic major-chord arpeggio fanfare
+        const chord = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+        chord.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+          gain.gain.setValueAtTime(0, now + idx * 0.08);
+          gain.gain.linearRampToValueAtTime(0.06, now + idx * 0.08 + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.65);
+
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.7);
+        });
+      }
+    } catch (e) {
+      console.warn("Audio Context not supported or allowed yet.", e);
+    }
+  }
+
+  return { playSound, initCtx };
+})();
+
+// ==================== 4. LOCALSTORAGE DATA HANDLERS ====================
+const StorageManager = (() => {
+  // Pre-seed accounts list with demo account (admin/admin)
+  function initUsersDatabase() {
+    let users = JSON.parse(localStorage.getItem("quizmaster-users")) || [];
+    const adminExists = users.some(u => u.email === "admin" || u.username === "admin");
+    if (!adminExists) {
+      users.push({
+        username: "admin",
+        email: "admin",
+        password: "admin", // Plaintext for mock demo convenience
+        level: 1,
+        xp: 0,
+        unlockedThemes: ["default"]
+      });
+      localStorage.setItem("quizmaster-users", JSON.stringify(users));
+    }
+  }
+
+  function getUser(loginId, password) {
+    const users = JSON.parse(localStorage.getItem("quizmaster-users")) || [];
+    return users.find(u => (u.email === loginId || u.username === loginId) && u.password === password);
+  }
+
+  function createUser(username, email, password) {
+    const users = JSON.parse(localStorage.getItem("quizmaster-users")) || [];
+    if (users.some(u => u.username === username || u.email === email)) {
+      return { success: false, msg: "Username or email already exists." };
+    }
+    const newUser = {
+      username,
+      email,
+      password,
+      level: 1,
+      xp: 0,
+      unlockedThemes: ["default"]
+    };
+    users.push(newUser);
+    localStorage.setItem("quizmaster-users", JSON.stringify(users));
+    return { success: true, user: newUser };
+  }
+
+  function updateUserProfile(username, updates) {
+    const users = JSON.parse(localStorage.getItem("quizmaster-users")) || [];
+    const idx = users.findIndex(u => u.username === username);
+    if (idx !== -1) {
+      users[idx] = { ...users[idx], ...updates };
+      localStorage.setItem("quizmaster-users", JSON.stringify(users));
+    }
+  }
+
+  // Save specific attempt analytics
+  function logAttempt(username, attemptData) {
+    const key = `quizmaster-history-${username || 'guest'}`;
+    const history = JSON.parse(localStorage.getItem(key)) || [];
+    history.unshift({
+      date: new Date().toISOString(),
+      ...attemptData
+    });
+    localStorage.setItem(key, JSON.stringify(history.slice(0, 15))); // Keep last 15
+  }
+
+  function getHistory(username) {
+    const key = `quizmaster-history-${username || 'guest'}`;
+    return JSON.parse(localStorage.getItem(key)) || [];
+  }
+
+  function clearHistory(username) {
+    const key = `quizmaster-history-${username || 'guest'}`;
+    localStorage.removeItem(key);
+  }
+
+  return { initUsersDatabase, getUser, createUser, updateUserProfile, logAttempt, getHistory, clearHistory };
+})();
