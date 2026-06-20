@@ -138,4 +138,176 @@
       </div>
     </div>
   </header>
+
+
+   <!-- App Viewport Container -->
+  <main class="app-viewport">
+
+    <!-- ==================== SCREEN 1: AUTHENTICATION PORTAL ==================== -->
+    <section id="screen-auth" class="quiz-screen active">
+      <div class="auth-card glass-card">
+        <div class="auth-card-header">
+          <h1 id="auth-title">Welcome to QuizMaster Pro</h1>
+          <p id="auth-subtitle">Sign in or create a mock account to unlock SaaS customization features</p>
+        </div>
+
+        <!-- Tab Toggle -->
+        <div class="auth-tabs">
+          <button id="tab-login" class="auth-tab-btn active">Log In</button>
+          <button id="tab-signup" class="auth-tab-btn">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login" class="auth-form">
+          <div class="form-group">
+            <label for="login-email">Email or Username</label>
+            <div class="input-wrapper">
+              <input type="text" id="login-email" required placeholder="name@domain.com or admin">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="login-password" required placeholder="•••••••• (admin for quick testing)">
+            </div>
+          </div>
+          <div class="auth-actions">
+            <label class="checkbox-container">
+              <input type="checkbox" id="login-remember">
+              <span class="checkmark"></span>
+              Remember me
+            </label>
+          </div>
+          <button type="submit" class="primary-btn glow-btn w-full">
+            <span>Log In to Dashboard</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </form>
+
+        <!-- Signup Form (Hidden by default) -->
+        <form id="form-signup" class="auth-form hidden">
+          <div class="form-group">
+            <label for="signup-username">Username</label>
+            <div class="input-wrapper">
+              <input type="text" id="signup-username" required placeholder="dev_guru">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signup-email">Email Address</label>
+            <div class="input-wrapper">
+              <input type="email" id="signup-email" required placeholder="coder@domain.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="signup-password" required placeholder="Choose a secure password">
+            </div>
+          </div>
+          <button type="submit" class="primary-btn glow-btn w-full">
+            <span>Create SaaS Profile</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>Or</span>
+        </div>
+
+        <button id="btn-guest" class="secondary-btn w-full" type="button">
+          <span>Explore as Guest</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.9 17.29A21.66 21.66 0 0 0 12 16a21.66 21.66 0 0 0 -5.9 1.29"></path><circle cx="12" cy="8" r="4"></circle><rect x="3" y="14" width="18" height="8" rx="2"></rect></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: LANDING PAGE ==================== -->
+    <section id="screen-landing" class="quiz-screen">
+      <div class="hero-section text-center">
+        <div class="badge-pill">
+          <span class="badge-pulse"></span>
+          <span id="landing-tagline">SaaS Quality Coding Challenges</span>
+        </div>
+        
+        <h1 class="hero-title">
+          Master Coding with <br>
+          <span class="gradient-text">QuizMaster Pro</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+          Test your programming limits with our multi-category interactive environment. Level up your profile, earn exclusive titles, and unlock visual customizer themes.
+        </p>
+
+        <!-- Brief Profile Stats Summary (if logged in) -->
+        <div id="landing-stats" class="landing-stats-grid glass-card">
+          <div class="l-stat">
+            <span class="l-stat-value" id="stat-rank">-</span>
+            <span class="l-stat-label">Performance Rank</span>
+          </div>
+          <div class="l-stat">
+            <span class="l-stat-value" id="stat-xp-lvl">LVL 1</span>
+            <span class="l-stat-label">Profile Status</span>
+          </div>
+          <div class="l-stat">
+            <span class="l-stat-value" id="stat-high">-</span>
+            <span class="l-stat-label">High Score</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button id="btn-start-landing" class="primary-btn glow-btn large-btn">
+            <span>Configure Session</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </button>
+          <button id="btn-dashboard-trigger" class="secondary-btn large-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+              <line x1="15" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="15" x2="21" y2="15"></line>
+            </svg>
+            <span>Analytics Summary</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: CONFIGURATION / SETUP ==================== -->
+    <section id="screen-setup" class="quiz-screen">
+      <div class="setup-grid">
+        <!-- Configuration Card -->
+        <div class="setup-card glass-card">
+          <h2 class="card-title">Quiz Configuration</h2>
+          <p class="card-subtitle">Choose your parameters to start the challenge</p>
+
+          <!-- Difficulty Selection -->
+          <div class="setup-group">
+            <label class="group-label">Difficulty Level</label>
+            <div class="options-row">
+              <label class="setup-radio-btn">
+                <input type="radio" name="difficulty" value="easy">
+                <div class="inner-btn">
+                  <span>Easy</span>
+                  <span class="desc-tag">Casual Learning</span>
+                </div>
+              </label>
+              <label class="setup-radio-btn">
+                <input type="radio" name="difficulty" value="medium" checked>
+                <div class="inner-btn">
+                  <span>Medium</span>
+                  <span class="desc-tag">Standard Challenge</span>
+                </div>
+              </label>
+              <label class="setup-radio-btn">
+                <input type="radio" name="difficulty" value="hard">
+                <div class="inner-btn">
+                  <span>Hard</span>
+                  <span class="desc-tag">Grand Master Rank</span>
+                </div>
+              </label>
+            </div>
+          </div>
 </body>
+        
