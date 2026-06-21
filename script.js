@@ -773,3 +773,108 @@ const StorageManager = (() => {
 
   return { initUsersDatabase, getUser, createUser, updateUserProfile, logAttempt, getHistory, clearHistory };
 })();
+
+// Initialize users database on startup
+StorageManager.initUsersDatabase();
+
+// ==================== 5. UI SCREEN TRANSITIONS & GSAP CONTROLLER ====================
+const ViewController = (() => {
+  const screens = {
+    auth: document.getElementById("screen-auth"),
+    landing: document.getElementById("screen-landing"),
+    setup: document.getElementById("screen-setup"),
+    quiz: document.getElementById("screen-quiz"),
+    results: document.getElementById("screen-results"),
+    review: document.getElementById("screen-review")
+  };
+
+  function showScreen(screenName) {
+    // Stop any timer on screen change
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    state.currentScreen = screenName;
+    
+    // Hide all screens, display active
+    Object.keys(screens).forEach(key => {
+      const el = screens[key];
+      if (key === screenName) {
+        el.style.display = "flex";
+        el.classList.add("active");
+        
+        // Trigger entrance animations using GSAP
+        gsap.killTweensOf(el);
+        gsap.fromTo(el, 
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", clearProps: "transform" }
+        );
+      } else {
+        el.style.display = "none";
+        el.classList.remove("active");
+      }
+    });
+
+    // Handle screen-specific renders
+    if (screenName === "landing") {
+      renderLanding();
+    } else if (screenName === "setup") {
+      renderSetup();
+    } else if (screenName === "quiz") {
+      startQuizSession();
+    } else if (screenName === "results") {
+      renderResults();
+    } else if (screenName === "review") {
+      renderReview();
+    }
+
+    // Update header controls based on auth state
+    const statsBtn = document.getElementById('btn-stats');
+    const profileCont = document.getElementById('profile-container');
+    if (screenName === 'auth') {
+      statsBtn.classList.add('hidden');
+      profileCont.classList.add('hidden');
+    } else if (state.user) {
+      statsBtn.classList.remove('hidden');
+      profileCont.classList.remove('hidden');
+      document.getElementById('user-display-name').textContent = state.user.username;
+      document.getElementById('avatar-letter').textContent = state.user.username.charAt(0).toUpperCase();
+    } else {
+      statsBtn.classList.add('hidden');
+      profileCont.classList.remove('hidden');
+      document.getElementById('user-display-name').textContent = 'Guest';
+      document.getElementById('avatar-letter').textContent = 'G';
+    }
+  }
+
+  // Float background blobs dynamically
+  function initAmbientAnimations() {
+    gsap.to(".blob-1", {
+      x: "15vw",
+      y: "10vh",
+      duration: 18,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+    gsap.to(".blob-2", {
+      x: "-15vw",
+      y: "-10vh",
+      duration: 22,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+    gsap.to(".blob-3", {
+      x: "-10vw",
+      y: "12vh",
+      duration: 25,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+  }
+
+  return { showScreen, initAmbientAnimations };
+})();
