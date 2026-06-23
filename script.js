@@ -878,3 +878,128 @@ const ViewController = (() => {
 
   return { showScreen, initAmbientAnimations };
 })();
+
+// ==================== 6. RENDERING FUNCTIONS ====================
+
+// --- RENDER LANDING PAGE ---
+function renderLanding() {
+  const landingStats = document.getElementById("landing-stats");
+  const btnDashboard = document.getElementById("btn-dashboard-trigger");
+  
+  if (state.user) {
+    landingStats.classList.remove("hidden");
+    btnDashboard.classList.remove("hidden");
+    
+    // Greeting modifications
+    document.getElementById("landing-tagline").textContent = `Pro Profile Unlocked: Level ${state.user.level}`;
+    
+    // Lifetime computations for summary UI
+    const history = StorageManager.getHistory(state.user.username);
+    if (history.length > 0) {
+      const high = Math.max(...history.map(h => h.accuracy));
+      const last = history[0].badge;
+      
+      document.getElementById("stat-rank").textContent = last;
+      document.getElementById("stat-high").textContent = `${high}%`;
+    } else {
+      document.getElementById("stat-rank").textContent = "Unranked";
+      document.getElementById("stat-high").textContent = "-";
+    }
+    document.getElementById("stat-xp-lvl").textContent = `LVL ${state.user.level}`;
+  } else {
+    landingStats.classList.add("hidden");
+    btnDashboard.classList.add("hidden");
+    document.getElementById("landing-tagline").textContent = "SaaS Quality Coding Challenges";
+  }
+
+  // Profile Header update
+  updateProfileHeader();
+}
+
+// --- UPDATE PROFILE NAVBAR WIDGET ---
+function updateProfileHeader() {
+  const trigger = document.getElementById("profile-trigger");
+  const dropdown = document.getElementById("profile-dropdown");
+  
+  if (state.user) {
+    document.getElementById("user-display-name").textContent = state.user.username;
+    document.getElementById("avatar-letter").textContent = state.user.username.charAt(0).toUpperCase();
+    document.getElementById("user-display-email").textContent = state.user.email;
+    
+    // Level progress calculations
+    const lvl = state.user.level;
+    const xp = state.user.xp;
+    const xpNext = lvl * 150; // XP threshold increments by level
+    const xpPrev = (lvl - 1) * 150;
+    const percent = Math.min(100, Math.max(0, ((xp) / xpNext) * 100));
+
+    document.getElementById("user-lvl").textContent = lvl;
+    document.getElementById("user-xp").textContent = xp;
+    document.getElementById("user-xp-next").textContent = xpNext;
+    document.getElementById("user-xp-bar").style.width = `${percent}%`;
+    
+    // Theme unlock status tag
+    document.getElementById("theme-unlock-tag").textContent = `Level ${lvl}`;
+    if (lvl > 1) {
+      document.getElementById("theme-unlock-tag").classList.add("text-success");
+      document.getElementById("theme-unlock-tag").textContent = "Themes Unlocked";
+    } else {
+      document.getElementById("theme-unlock-tag").classList.remove("text-success");
+    }
+  } else {
+    document.getElementById("user-display-name").textContent = "Guest Mode";
+    document.getElementById("avatar-letter").textContent = "G";
+    document.getElementById("user-display-email").textContent = "guest@quizmaster.pro";
+  }
+}
+
+// --- RENDER CONFIGURATION SETUP ---
+function renderSetup() {
+  const overlay = document.getElementById("sandbox-lock-overlay");
+  const proCard = document.getElementById("pro-sandbox-card");
+  
+  if (state.user) {
+    // Unlocked
+    overlay.classList.add("hidden");
+    proCard.classList.remove("disabled-visual");
+    state.proModeActive = true;
+  } else {
+    // Locked
+    overlay.classList.remove("hidden");
+    proCard.classList.add("disabled-visual");
+    state.proModeActive = false;
+  }
+  
+  updateProfileHeader();
+}
+
+// --- START QUIZ PREPARATIONS ---
+function startQuizSession() {
+  // 1. Gather configured settings
+  let count = parseInt(document.querySelector('input[name="questionCount"]:checked').value);
+  let difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+  
+  state.questionCount = count;
+  state.difficulty = difficulty;
+  state.currentQuestionIndex = 0;
+  state.score = 0;
+  state.userAnswers = [];
+  state.startTime = Date.now();
+
+  // 2. Question Pool Selection
+  let pool = QUESTIONS.filter(q => q.difficulty === difficulty);
+  
+  // Apply category limits if Pro Customizer is unlocked
+  if (state.user && state.proModeActive) {
+    const selectedCats = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(c => c.value);
+    
+    // Fallback if no category selected
+    if (selectedCats.length > 0) {
+      pool = pool.filter(q => {
+        // Map nested categories or match string
+        if (q.category === "HTML/CSS") return selectedCats.includes("HTML/CSS");
+        if (q.category === "Logical Reasoning" || q.category === "Reasoning") return selectedCats.includes("Reasoning");
+        if (q.category === "Fundamentals" || q.category === "Computer Fundamentals") return selectedCats.includes("Fundamentals");
+        return selectedCats.includes(q.category);
+      });
+    }
