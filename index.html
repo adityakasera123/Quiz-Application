@@ -405,6 +405,176 @@
               </div>
               <input type="range" id="custom-time-limit" min="5" max="30" value="15" step="1" class="slider-input">
             </div>
+ <!-- Sudden Death Toggle -->
+            <div class="setup-group">
+              <div class="toggle-row">
+                <div>
+                  <label class="group-label mb-0">Sudden Death Mode</label>
+                  <p class="desc-tag mt-1">One wrong answer instantly ends the entire quiz!</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="sudden-death-toggle">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="setup-back mt-6 text-center">
+        <button id="btn-setup-back" class="text-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Back to Landing</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 4: ACTIVE QUIZ ZONE ==================== -->
+    <section id="screen-quiz" class="quiz-screen">
+      <!-- Full Width Top Progress Bar -->
+      <div class="progress-container-global">
+        <div id="quiz-progress-bar" class="progress-fill"></div>
+      </div>
+
+      <div class="quiz-layout">
+        <!-- Main Quiz Card -->
+        <div class="quiz-main-card glass-card">
+          <!-- Question Header Status -->
+          <div class="quiz-card-header">
+            <span class="q-number-pill">Question <span id="q-current">1</span> of <span id="q-total">10</span></span>
+            <span class="category-tag" id="q-category">JavaScript</span>
+            <span class="difficulty-indicator font-semibold text-accent" id="q-difficulty">Medium</span>
+          </div>
+
+          <!-- Question Prompt -->
+          <div class="q-content">
+            <h2 id="q-text" class="question-text">Loading question...</h2>
+          </div>
+
+          <!-- Code Snippet Area (Dynamic) -->
+          <div id="q-code-container" class="code-snippet-box hidden">
+            <pre><code id="q-code">console.log("QuizMaster Pro")</code></pre>
+          </div>
+
+          <!-- Options Grid -->
+          <div id="options-grid" class="options-grid">
+            <!-- Dynamically populated options -->
+            <div class="option-card" data-idx="0">
+              <span class="option-letter">A</span>
+              <span class="option-text">Option Text One</span>
+              <span class="feedback-icon-placeholder"></span>
+            </div>
+            <div class="option-card" data-idx="1">
+              <span class="option-letter">B</span>
+              <span class="option-text">Option Text Two</span>
+              <span class="feedback-icon-placeholder"></span>
+            </div>
+            <div class="option-card" data-idx="2">
+              <span class="option-letter">C</span>
+              <span class="option-text">Option Text Three</span>
+              <span class="feedback-icon-placeholder"></span>
+            </div>
+            <div class="option-card" data-idx="3">
+              <span class="option-letter">D</span>
+              <span class="option-text">Option Text Four</span>
+              <span class="feedback-icon-placeholder"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Widget Dashboard -->
+        <div class="quiz-sidebar flex-column">
+          <!-- Countdown Timer Ring Card -->
+          <div class="timer-card glass-card flex-center flex-column text-center">
+            <span class="widget-title">Time Left</span>
+            
+            <div class="timer-dial-container">
+              <svg class="timer-svg" width="120" height="120" viewBox="0 0 120 120">
+                <circle class="timer-bg-circle" cx="60" cy="60" r="50" fill="none" stroke-width="8"></circle>
+                <circle id="timer-progress-circle" class="timer-progress-circle" cx="60" cy="60" r="50" fill="none" stroke-width="8" stroke-dasharray="314.16" stroke-dashoffset="0" transform="rotate(-90 60 60)"></circle>
+              </svg>
+              <div id="timer-counter" class="timer-counter-text">15</div>
+            </div>
+          </div>
+
+          <!-- Live Score Status Widget -->
+          <div class="score-widget-card glass-card text-center flex-center flex-column">
+            <span class="widget-title">Live Score</span>
+            <div class="live-points" id="live-points">000</div>
+            <span class="desc-tag">XP earned this session</span>
+          </div>
+
+          <!-- Sandbox Sudden Death indicator (conditional) -->
+          <div class="danger-widget-card glass-card text-center flex-center flex-column hidden" id="sudden-death-indicator">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-danger animate-pulse">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span class="danger-title mt-2">Sudden Death Active</span>
+            <span class="desc-tag">Zero margin for errors</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 5: RESULTS DASHBOARD ==================== -->
+    <section id="screen-results" class="quiz-screen">
+      <div class="results-layout">
+        <!-- Main Dashboard Statistics Card -->
+        <div class="results-card glass-card">
+          <div class="results-header text-center">
+            <h1 class="gradient-text dashboard-title">Challenge Summary</h1>
+            <p class="card-subtitle">Your performance has been compiled by the evaluation system</p>
+          </div>
+
+          <!-- Top Level Score Details -->
+          <div class="results-hero-grid mt-6">
+            <!-- Accuracy Circle Gauge -->
+            <div class="result-gauge-box flex-center flex-column">
+              <div class="gauge-ring-container">
+                <svg width="150" height="150" viewBox="0 0 150 150">
+                  <circle cx="75" cy="75" r="62" fill="none" stroke="var(--border-primary)" stroke-width="10"></circle>
+                  <circle id="result-accuracy-ring" cx="75" cy="75" r="62" fill="none" stroke="var(--accent-primary)" stroke-width="10" stroke-dasharray="389.5" stroke-dashoffset="389.5" transform="rotate(-90 75 75)" stroke-linecap="round"></circle>
+                </svg>
+                <div class="gauge-percentage-center" id="result-accuracy-text">0%</div>
+              </div>
+              <span class="gauge-label">Accuracy Rating</span>
+            </div>
+
+            <!-- XP Gained Summary Card -->
+            <div class="xp-results-card flex-center flex-column text-center">
+              <span class="xp-label">EXPERIENCE GAINED</span>
+              <h2 id="result-xp-earned" class="xp-earned-counter">+0 XP</h2>
+              <p class="desc-tag mt-2">Level up your profile to unlock custom visual interfaces</p>
+              
+              <!-- Level Up Notification Alert -->
+              <div id="level-up-notification" class="lvl-alert hidden mt-3">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                <span>LEVEL UP! UNLOCKED THEMES</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Grid: Raw Metrics -->
+          <div class="raw-metrics-grid mt-6">
+            <div class="metric-card bg-glass-soft">
+              <span class="m-val" id="res-score">0/10</span>
+              <span class="m-lbl">Final Score</span>
+            </div>
+            <div class="metric-card bg-glass-soft">
+              <span class="m-val" id="res-correct">0</span>
+              <span class="m-lbl">Correct Answers</span>
+            </div>
+            <div class="metric-card bg-glass-soft">
+              <span class="m-val" id="res-wrong">0</span>
+              <span class="m-lbl">Wrong Answers</span>
+            </div>
+            <div class="metric-card bg-glass-soft">
+              <span class="m-val" id="res-time">00s</span>
+              <span class="m-lbl">Total Time Taken</span>
+            </div>
+          </div>
 
 </body>
         
