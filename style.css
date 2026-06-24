@@ -847,3 +847,78 @@ h1,h2,h3,h4,h5,h6 {
 .danger-title { font-size: 0.8rem; font-weight: 700; color: var(--error); }
 .animate-pulse { animation: danger-pulse 1.5s ease infinite; }
 @keyframes danger-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── Results Screen ───────────────────────────────────────────────────────── */
+.results-layout { display: grid; grid-template-columns: 1.2fr 0.9fr; gap: 1.5rem; width: 100%; }
+.results-card { padding: 2.25rem; }
+.dashboard-title { font-size: 1.9rem; margin-bottom: 0.25rem; }
+.results-header p { color: var(--text-2); font-size: 0.88rem; }
+
+.results-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.result-gauge-box { display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+.gauge-ring-container { position: relative; width: 140px; height: 140px; }
+.gauge-percentage-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-family: var(--font-display);
+  font-weight: 900; font-size: 2rem; color: var(--text-1);
+}
+.result-accuracy-ring {
+  stroke: var(--accent);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+  stroke-linecap: round;
+}
+.gauge-label { margin-top: 0.75rem; font-size: 0.72rem; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.xp-results-card {
+  background: rgba(139,92,246,0.04);
+  border: 1px dashed rgba(139,92,246,0.25);
+  border-radius: var(--r-md); padding: 1.5rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+}
+.xp-label { font-size: 0.68rem; font-weight: 700; color: var(--text-2); letter-spacing: 0.1em; }
+.xp-earned-counter {
+  font-family: var(--font-display);
+  font-size: 2.5rem; font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 24px var(--accent-glow);
+  margin-top: 0.25rem;
+}
+
+.lvl-alert {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.4);
+  color: var(--success);
+  padding: 0.35rem 0.85rem; border-radius: var(--r-full);
+  font-size: 0.72rem; font-weight: 700;
+  animation: lvl-bounce 1s ease infinite alternate;
+}
+@keyframes lvl-bounce { 0%{transform:scale(0.97)} 100%{transform:scale(1.03)} }
+
+.raw-metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.6rem; }
+.metric-card {
+  display: flex; flex-direction: column;
+  padding: 1rem 0.75rem; border-radius: var(--r-sm);
+  background: var(--bg-2);
+  border: 1px solid var(--border); text-align: center;
+}
+.bg-glass-soft { background: var(--bg-2); }
+.m-val { font-family: var(--font-display); font-size: 1.25rem; font-weight: 900; color: var(--text-1); margin-bottom: 0.2rem; }
+.m-lbl { font-size: 0.67rem; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.results-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.badge-sidebar { padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.badge-display-container { display: flex; flex-direction: column; align-items: center; flex: 1; justify-content: center; gap: 0.5rem; }
+.badge-icon-box {
+  width: 130px; height: 130px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-full);
+  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+  border: 1px solid rgba(139,92,246,0.2);
+}
+.badge-icon-box svg { width: 80px; height: 80px; }
+.animate-float { animation: float-badge 4s ease-in-out infinite; }
+@keyframes float-badge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.badge-title { font-size: 1.4rem; font-weight: 900; color: var(--text-1); }
