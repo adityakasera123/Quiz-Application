@@ -1003,3 +1003,519 @@ function startQuizSession() {
         return selectedCats.includes(q.category);
       });
     }
+
+      // Apply custom timer values
+    state.customTimeLimit = parseInt(document.getElementById("custom-time-limit").value);
+    state.suddenDeath = document.getElementById("sudden-death-toggle").checked;
+  } else {
+    // Default config values
+    state.customTimeLimit = 15;
+    state.suddenDeath = false;
+  }
+
+  // Fallback if search parameters yield empty result set
+  if (pool.length === 0) {
+    pool = QUESTIONS.filter(q => q.difficulty === difficulty);
+  }
+
+  // Shuffle pool using Fisher-Yates
+  const shuffled = [...pool];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Trim to count limit
+  state.quizQuestions = shuffled.slice(0, count);
+  state.questionCount = state.quizQuestions.length; // Ensure matches actual size
+
+  // Setup sidebar elements
+  const sdIndicator = document.getElementById("sudden-death-indicator");
+  if (state.suddenDeath) {
+    sdIndicator.classList.remove("hidden");
+  } else {
+    sdIndicator.classList.add("hidden");
+  }
+
+  document.getElementById("live-points").textContent = "000";
+
+  // 3. Render Question 1
+  loadQuestionCard();
+}
+
+// --- RENDER ACTIVE QUESTION CARD ---
+function loadQuestionCard() {
+  const currentIdx = state.currentQuestionIndex;
+  const q = state.quizQuestions[currentIdx];
+  
+  state.answered = false;
+  state.selectedAnswer = null;
+  state.timer = state.customTimeLimit;
+
+  // Header Details
+  document.getElementById("q-current").textContent = currentIdx + 1;
+  document.getElementById("q-total").textContent = state.questionCount;
+  document.getElementById("q-category").textContent = q.category;
+  document.getElementById("q-difficulty").textContent = q.difficulty.toUpperCase();
+
+  // Question Prompt
+  document.getElementById("q-text").textContent = q.question;
+
+  // Code Snippet container
+  const codeBox = document.getElementById("q-code-container");
+  const codeNode = document.getElementById("q-code");
+  if (q.code) {
+    codeNode.textContent = q.code;
+    codeBox.classList.remove("hidden");
+  } else {
+    codeBox.classList.add("hidden");
+  }
+
+  // Populate Options cards
+  const optionsGrid = document.getElementById("options-grid");
+  optionsGrid.innerHTML = "";
+  
+  q.options.forEach((opt, idx) => {
+    const optLetter = String.fromCharCode(65 + idx); // A, B, C, D
+    const card = document.createElement("div");
+    card.className = "option-card";
+    card.dataset.idx = idx;
+    card.innerHTML = `
+      <span class="option-letter">${optLetter}</span>
+      <span class="option-text">${opt}</span>
+      <span class="feedback-icon-placeholder"></span>
+    `;
+    
+    // Option Click event attachment
+    card.addEventListener("click", () => handleOptionSelected(idx, card));
+    optionsGrid.appendChild(card);
+  });
+
+  // Stagger Option Cards in with GSAP
+  gsap.fromTo(".option-card", 
+    { opacity: 0, x: -15 },
+    { opacity: 1, x: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" }
+  );
+
+  // Global viewport bar progress update
+  const totalBarPercent = ((currentIdx) / state.questionCount) * 100;
+  document.getElementById("quiz-progress-bar").style.width = `${totalBarPercent}%`;
+
+  // Start Timer logic
+  startQuestionTimer();
+}
+
+// --- TIMER MECHANICAL LOOP ---
+function startQuestionTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+
+  const duration = state.customTimeLimit;
+  const progressCircle = document.getElementById("timer-progress-circle");
+  const counterText = document.getElementById("timer-counter");
+  const maxDashOffset = 314.16; // 2 * PI * R (R=50)
+
+  // Reset SVG styles
+  progressCircle.style.strokeDashoffset = "0";
+  progressCircle.classList.remove("warning");
+  counterText.textContent = state.timer;
+
+  timerInterval = setInterval(() => {
+    state.timer--;
+    
+    if (state.timer >= 0) {
+      counterText.textContent = state.timer;
+      
+      // Compute dial circle dashoffset
+      const percentLeft = state.timer / duration;
+      const offsetVal = maxDashOffset * (1 - percentLeft);
+      progressCircle.style.strokeDashoffset = offsetVal;
+
+      if (state.timer <= 3) {
+        progressCircle.classList.add("warning");
+      }
+    } else {
+      // Timeout auto-submit
+      clearInterval(timerInterval);
+      handleQuestionTimeout();
+    }
+  }, 1000);
+}
+
+// --- OPTION SUBMISSION HANDLER ---
+function handleOptionSelected(selectedIndex, selectedCard) {
+  if (state.answered) return;
+  
+  state.answered = true;
+  state.selectedAnswer = selectedIndex;
+  clearInterval(timerInterval);
+
+  const q = state.quizQuestions[state.currentQuestionIndex];
+  const isCorrect = (selectedIndex === q.answer);
+  const cards = document.querySelectorAll(".option-card");
+
+  // Track attempt metrics
+  const questionTimeTaken = state.customTimeLimit - state.timer;
+  state.userAnswers.push({
+    questionId: q.id,
+    questionText: q.question,
+    selectedIndex,
+    correctIndex: q.answer,
+    isCorrect,
+    timeTaken: questionTimeTaken
+  });
+
+  // Style cards accordingly
+  cards.forEach((card, idx) => {
+    card.classList.add("disabled");
+    
+    if (idx === q.answer) {
+      card.classList.add("correct");
+      card.querySelector(".feedback-icon-placeholder").innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-success">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `;
+    }
+    
+    if (idx === selectedIndex && !isCorrect) {
+      card.classList.add("wrong");
+      card.querySelector(".feedback-icon-placeholder").innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-danger">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      `;
+    }
+  });
+
+  if (isCorrect) {
+    state.score++;
+    AudioSynth.playSound("correct");
+    
+    // Add point XP counter animation
+    const livePoints = document.getElementById('live-points');
+    const oldVal = parseInt(livePoints.textContent) || 0;
+    const multiplier = q.difficulty === 'easy' ? 10 : q.difficulty === 'medium' ? 20 : 30;
+    const newVal = oldVal + multiplier;
+    const counter = { val: oldVal };
+
+    gsap.to(counter, {
+      val: newVal,
+      duration: 0.5,
+      ease: 'power2.out',
+      onUpdate: () => {
+        livePoints.textContent = String(Math.round(counter.val)).padStart(3, '0');
+      }
+    });
+  } else {
+    AudioSynth.playSound("wrong");
+
+    // Sudden death evaluation
+    if (state.suddenDeath) {
+      setTimeout(() => {
+        completeQuizSession();
+      }, 1200);
+      return;
+    }
+  }
+
+  // Advance to next after short delay
+  setTimeout(() => {
+    advanceQuiz();
+  }, 1600);
+}
+
+// --- QUESTION TIMEOUT FORCED TRANSITION ---
+function handleQuestionTimeout() {
+  state.answered = true;
+  state.selectedAnswer = null;
+
+  const q = state.quizQuestions[state.currentQuestionIndex];
+  const cards = document.querySelectorAll(".option-card");
+
+  state.userAnswers.push({
+    questionId: q.id,
+    questionText: q.question,
+    selectedIndex: null,
+    correctIndex: q.answer,
+    isCorrect: false,
+    timeTaken: state.customTimeLimit
+  });
+
+  cards.forEach((card, idx) => {
+    card.classList.add("disabled");
+    if (idx === q.answer) {
+      card.classList.add("correct");
+      card.querySelector(".feedback-icon-placeholder").innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-success">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `;
+    }
+  });
+
+  AudioSynth.playSound("wrong");
+
+  // Sudden Death timeout check
+  if (state.suddenDeath) {
+    setTimeout(() => {
+      completeQuizSession();
+    }, 1200);
+    return;
+  }
+
+  setTimeout(() => {
+    advanceQuiz();
+  }, 1600);
+}
+
+// --- STEP QUESTION POOL ---
+function advanceQuiz() {
+  state.currentQuestionIndex++;
+  
+  if (state.currentQuestionIndex < state.questionCount) {
+    loadQuestionCard();
+  } else {
+    completeQuizSession();
+  }
+}
+
+// --- END OF GAME AGGREGATIONS ---
+function completeQuizSession() {
+  state.totalTimeTaken = Math.round((Date.now() - state.startTime) / 1000);
+  AudioSynth.playSound("complete");
+  
+  // Global progress bar complete fill
+  document.getElementById("quiz-progress-bar").style.width = "100%";
+
+  // Trigger high scores confetti celebration for decent accuracy
+  const acc = Math.round((state.score / state.questionCount) * 100);
+  if (acc >= 70) {
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#8A2387', '#E94057', '#F27121']
+      });
+    } catch(e) {}
+  }
+
+  // Profile XP calculations and logging (Registered users only)
+  let xpEarned = 0;
+  if (state.user) {
+    // XP math: Easy=10xp, Medium=20xp, Hard=30xp per correct answer
+    // Add accuracy scale bonuses
+    const difficultyMultiplier = state.difficulty === "easy" ? 10 : state.difficulty === "medium" ? 20 : 30;
+    xpEarned = state.score * difficultyMultiplier;
+    
+    if (acc === 100) xpEarned += 50; // Perfect score bonus
+    
+    // Save to user object
+    let newXp = state.user.xp + xpEarned;
+    let currentLvl = state.user.level;
+    let nextLvlThreshold = currentLvl * 150;
+    let leveledUp = false;
+
+    while (newXp >= nextLvlThreshold) {
+      newXp -= nextLvlThreshold;
+      currentLvl++;
+      nextLvlThreshold = currentLvl * 150;
+      leveledUp = true;
+    }
+
+    const updatedUser = {
+      ...state.user,
+      xp: newXp,
+      level: currentLvl
+    };
+
+    // Save to storage
+    StorageManager.updateUserProfile(state.user.username, updatedUser);
+    state.user = updatedUser;
+
+    // Show level up alert
+    const lvlNotification = document.getElementById("level-up-notification");
+    if (leveledUp) {
+      lvlNotification.classList.remove("hidden");
+    } else {
+      lvlNotification.classList.add("hidden");
+    }
+  }
+
+  // Compute Badge ranks
+  const badgeObj = getPerformanceBadge(acc);
+
+  // Sync to history database
+  const logData = {
+    difficulty: state.difficulty,
+    questionCount: state.questionCount,
+    score: state.score,
+    accuracy: acc,
+    timeTaken: state.totalTimeTaken,
+    badge: badgeObj.name,
+    xpGained: xpEarned
+  };
+  
+  StorageManager.logAttempt(state.user ? state.user.username : null, logData);
+
+  // Go to results Screen
+  ViewController.showScreen("results");
+}
+
+// --- BADGE CLASSIFIER UTILS ---
+function getPerformanceBadge(percentage) {
+  if (percentage >= 95) {
+    return {
+      name: "Grand Master",
+      desc: "Acing the challenge with supreme, near-perfect precision.",
+      color: "gold",
+      svg: `<svg viewBox="0 0 24 24" fill="none" stroke="gold" stroke-width="2" class="animate-float"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline><circle cx="12" cy="8" r="3" fill="gold"></circle></svg>`
+    };
+  } else if (percentage >= 85) {
+    return {
+      name: "Expert",
+      desc: "Demonstrated advanced execution, solving tough challenges.",
+      color: "#c0c0c0",
+      svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#e6e6e6" stroke-width="2" class="animate-float"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`
+    };
+  } else if (percentage >= 70) {
+    return {
+      name: "Skilled",
+      desc: "Good grasp of topics, showing solid code understanding.",
+      color: "#cd7f32",
+      svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#CD7F32" stroke-width="2" class="animate-float"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`
+    };
+  } else if (percentage >= 50) {
+    return {
+      name: "Learner",
+      desc: "Building foundations. Keeps training to master options.",
+      color: "#4e9af1",
+      svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#4e9af1" stroke-width="2" class="animate-float"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`
+    };
+  } else {
+    return {
+      name: "Beginner",
+      desc: "Starting coding journey. Try again to level up skills.",
+      color: "#94a3b8",
+      svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" class="animate-float"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+    };
+  }
+}
+
+// --- RENDER RESULTS SUMMARY DASHBOARD ---
+function renderResults() {
+  const acc = Math.round((state.score / state.questionCount) * 100);
+
+  // Animate Gauge Accuracy Ring
+  const ring = document.getElementById('result-accuracy-ring');
+  const maxDashOffset = 389.5; // 2 * PI * R (R=62)
+  const offset = maxDashOffset * (1 - acc / 100);
+
+  // Animate accuracy text counter with proper onUpdate
+  const accCounter = { val: 0 };
+  const accText = document.getElementById('result-accuracy-text');
+  accText.textContent = '0%';
+  gsap.to(accCounter, {
+    val: acc,
+    duration: 1.2,
+    ease: 'power2.out',
+    onUpdate: () => {
+      accText.textContent = Math.round(accCounter.val) + '%';
+    }
+  });
+
+  gsap.to(ring, {
+    strokeDashoffset: offset,
+    duration: 1.2,
+    ease: 'power2.out'
+  });
+
+  // Secondary metrics
+  document.getElementById("res-score").textContent = `${state.score}/${state.questionCount}`;
+  document.getElementById("res-correct").textContent = state.score;
+  document.getElementById("res-wrong").textContent = state.questionCount - state.score;
+  document.getElementById("res-time").textContent = `${state.totalTimeTaken}s`;
+
+  // XP updates (visual counter with proper onUpdate)
+  const xpEarned = state.user
+    ? state.score * (state.difficulty === 'easy' ? 10 : state.difficulty === 'medium' ? 20 : 30) + (acc === 100 ? 50 : 0)
+    : 0;
+  const xpEl = document.getElementById('result-xp-earned');
+  if (xpEarned > 0) {
+    const xpCount = { val: 0 };
+    xpEl.textContent = '+0 XP';
+    gsap.to(xpCount, {
+      val: xpEarned,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => {
+        xpEl.textContent = '+' + Math.round(xpCount.val) + ' XP';
+      }
+    });
+  } else {
+    xpEl.textContent = 'Guest — Log in to earn XP';
+  }
+
+  // Display badges
+  const badge = getPerformanceBadge(acc);
+  document.getElementById("result-badge-name").textContent = badge.name;
+  document.getElementById("result-badge-desc").textContent = badge.desc;
+  document.getElementById("result-badge-icon").innerHTML = badge.svg;
+
+  // Stagger result layouts with GSAP
+  gsap.fromTo(".metric-card",
+    { opacity: 0, scale: 0.9 },
+    { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08, ease: "back.out(1.5)" }
+  );
+
+  updateProfileHeader();
+}
+
+// --- RENDER ANSWERS REVIEW ACCORDION ---
+function renderReview() {
+  const container = document.getElementById("review-list");
+  container.innerHTML = "";
+
+  state.userAnswers.forEach((ans, idx) => {
+    const q = QUESTIONS.find(elem => elem.id === ans.questionId);
+    if (!q) return;
+
+    const item = document.createElement("div");
+    item.className = "review-item";
+
+    const userValText = ans.selectedIndex !== null ? q.options[ans.selectedIndex] : "Timeout (Unanswered)";
+    const correctValText = q.options[ans.correctIndex];
+    const statusClass = ans.isCorrect ? "correct" : ans.selectedIndex === null ? "unanswered" : "wrong";
+    const statusLabel = ans.isCorrect ? "Correct" : ans.selectedIndex === null ? "Timed Out" : "Incorrect";
+
+    item.innerHTML = `
+      <div class="review-item-header">
+        <span class="review-q-title">Q${idx + 1}: ${q.question}</span>
+        <span class="review-badge-status ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="review-item-body">
+        <p class="font-semibold mb-2">Question Details:</p>
+        <p class="desc-tag mb-4">${q.question}</p>
+        
+        <div class="review-answers-compare">
+          <div class="ans-pane pane-user ${statusClass}">
+            <span>Your Answer</span>
+            <p>${userValText}</p>
+          </div>
+          <div class="ans-pane pane-correct">
+            <span>Correct Answer</span>
+            <p>${correctValText}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Accordion Toggle click
+    item.querySelector(".review-item-header").addEventListener("click", () => {
+      item.classList.toggle("expanded");
+    });
+
+    container.appendChild(item);
+  });
+}
