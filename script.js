@@ -1519,3 +1519,185 @@ function renderReview() {
     container.appendChild(item);
   });
 }
+
+// --- RENDER ANALYTICS HISTORIES ---
+function renderAnalytics() {
+  const username = state.user ? state.user.username : "guest";
+  const history = StorageManager.getHistory(username);
+  
+  // Aggregate stats values
+  const count = history.length;
+  document.getElementById("stat-attempts").textContent = count;
+  
+  if (count > 0) {
+    const accs = history.map(h => h.accuracy);
+    const max = Math.max(...accs);
+    const avg = Math.round(accs.reduce((a, b) => a + b, 0) / count);
+    
+    // Last run formatting
+    const lastRunDate = new Date(history[0].date);
+    const dateFormatted = lastRunDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+    document.getElementById("stat-max-score").textContent = `${max}%`;
+    document.getElementById("stat-avg-score").textContent = `${avg}%`;
+    document.getElementById("stat-last-time").textContent = dateFormatted;
+  } else {
+    document.getElementById("stat-max-score").textContent = "0%";
+    document.getElementById("stat-avg-score").textContent = "0%";
+    document.getElementById("stat-last-time").textContent = "-";
+  }
+
+  // Populate attempt records lists
+  const historyContainer = document.getElementById("history-container");
+  historyContainer.innerHTML = "";
+
+  if (count > 0) {
+    history.forEach(item => {
+      const d = new Date(item.date);
+      const timeStr = d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const row = document.createElement("div");
+      row.className = "history-item";
+      row.innerHTML = `
+        <div class="history-info">
+          <span class="h-diff">${item.difficulty} (${item.questionCount}Q)</span>
+          <span class="h-date">${timeStr}</span>
+        </div>
+        <span class="h-score font-semibold ${item.accuracy >= 70 ? 'text-success' : 'text-danger'}">${item.accuracy}% (${item.badge})</span>
+      `;
+      historyContainer.appendChild(row);
+    });
+  } else {
+    historyContainer.innerHTML = `
+      <div class="history-empty text-center py-6">
+        <p class="desc-tag">No attempt data logged yet. Complete a quiz to see results.</p>
+      </div>
+    `;
+  }
+}
+
+// ==================== 7. THEME & SOUND CONFIGURATION SYSTEMS ====================
+
+// --- INIT THEME PERSISTENCE STATE ---
+function initThemeState() {
+  const saved = localStorage.getItem('quizmaster-theme') || 'dark';
+  const savedAccent = localStorage.getItem('quizmaster-accent') || 'default';
+
+  currentBaseTheme   = saved;
+  currentAccentTheme = savedAccent;
+
+  // Apply base theme
+  document.documentElement.setAttribute('data-theme', currentBaseTheme);
+
+  // Apply accent on top (if not default, layer it via a second attribute)
+  if (currentAccentTheme !== 'default' && currentBaseTheme !== 'light') {
+    document.documentElement.setAttribute('data-theme', currentAccentTheme);
+  }
+
+  updateThemeIcons();
+}
+
+function updateThemeIcons() {
+  const btn = document.getElementById('btn-theme');
+  const sunIcon  = btn.querySelector('.icon-sun');
+  const moonIcon = btn.querySelector('.icon-moon');
+  if (currentBaseTheme === 'light') {
+    sunIcon.classList.add('hidden');
+    moonIcon.classList.remove('hidden');
+  } else {
+    sunIcon.classList.remove('hidden');
+    moonIcon.classList.add('hidden');
+  }
+}
+
+// --- TOGGLE BASE LIGHT / DARK (preserves accent) ---
+function toggleTheme() {
+  currentBaseTheme = currentBaseTheme === 'light' ? 'dark' : 'light';
+  localStorage.setItem('quizmaster-theme', currentBaseTheme);
+
+  if (currentBaseTheme === 'light') {
+    // Light mode always overrides accents for readability
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    // Restore the saved accent theme on dark base
+    const theme = (currentAccentTheme && currentAccentTheme !== 'default')
+      ? currentAccentTheme : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  updateThemeIcons();
+}
+
+// --- PREMIUM UNLOCKED THEMES CONFIG ---
+function applyCustomThemePreset(themeVal) {
+  if (!state.user) return;
+  const level = state.user.level;
+
+  // Level gates for paid themes
+  if (themeVal === 'cyberpunk' && level < 2) { alert('Reach Level 2 to unlock Cyberpunk Gold!'); return; }
+  if (themeVal === 'emerald'   && level < 3) { alert('Reach Level 3 to unlock Emerald Forest!'); return; }
+  if (themeVal === 'sunset'    && level < 4) { alert('Reach Level 4 to unlock Rose Sunset!');   return; }
+
+  currentAccentTheme = themeVal;
+  localStorage.setItem('quizmaster-accent', themeVal);
+
+  // Only apply accent if on dark base
+  if (currentBaseTheme !== 'light') {
+    const applyVal = (themeVal === 'default') ? 'dark' : themeVal;
+    document.documentElement.setAttribute('data-theme', applyVal);
+  }
+
+  // Highlight active card
+  document.querySelectorAll('.theme-select-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.theme === themeVal);
+  });
+}
+
+function updateThemeSelectCards() {
+  const level = state.user ? state.user.level : 1;
+  
+  const cyberpunk = document.getElementById("theme-card-cyberpunk");
+  const emerald = document.getElementById("theme-card-emerald");
+  const sunset = document.getElementById("theme-card-sunset");
+
+  // Unlocking card statuses visually
+  if (level >= 2) {
+    cyberpunk.classList.remove("locked");
+    cyberpunk.querySelector(".theme-status").innerHTML = `<span class="text-success">Available</span>`;
+  } else {
+    cyberpunk.classList.add("locked");
+    cyberpunk.querySelector(".theme-status").innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LVL 2 Unlocks`;
+  }
+
+  if (level >= 3) {
+    emerald.classList.remove("locked");
+    emerald.querySelector(".theme-status").innerHTML = `<span class="text-success">Available</span>`;
+  } else {
+    emerald.classList.add("locked");
+    emerald.querySelector(".theme-status").innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LVL 3 Unlocks`;
+  }
+
+  if (level >= 4) {
+    sunset.classList.remove("locked");
+    sunset.querySelector(".theme-status").innerHTML = `<span class="text-success">Available</span>`;
+  } else {
+    sunset.classList.add("locked");
+    sunset.querySelector(".theme-status").innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LVL 4 Unlocks`;
+  }
+}
+
+// --- SOUND MUTE TOGGLE ---
+function toggleMute() {
+  state.mute = !state.mute;
+  
+  const btn = document.getElementById("btn-sound");
+  const soundIcon = btn.querySelector(".icon-unmuted");
+  const muteIcon = btn.querySelector(".icon-muted");
+
+  if (state.mute) {
+    soundIcon.classList.add("hidden");
+    muteIcon.classList.remove("hidden");
+    btn.classList.add("active");
+  } else {
+    soundIcon.classList.remove("hidden");
+    muteIcon.classList.add("hidden");
+    btn.classList.remove("active");
