@@ -688,6 +688,60 @@
     </div>
   </div>
   
+  <!-- ==================== PREMIUM THEME SELECTION MODAL ==================== -->
+  <div id="modal-themes-view" class="app-modal flex-center hidden" role="dialog" aria-labelledby="theme-modal-title" aria-modal="true">
+    <div class="modal-overlay" id="modal-themes-overlay"></div>
+    <div class="modal-card glass-card text-center max-w-md">
+      <button class="close-modal-btn" id="btn-close-themes" aria-label="Close themes modal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <h2 id="theme-modal-title" class="gradient-text modal-title">Premium Visual Customizer</h2>
+      <p class="card-subtitle">Unlock customized SaaS accent configurations by gaining XP levels</p>
+
+      <div class="theme-grid mt-6">
+        <!-- Default Dark/Light UI -->
+        <div class="theme-select-card active" data-theme="default">
+          <div class="theme-swatch swatch-default"></div>
+          <h4>Default Neon</h4>
+          <span class="theme-status">Active</span>
+        </div>
+        <!-- Cyberpunk Accent -->
+        <div class="theme-select-card locked" id="theme-card-cyberpunk" data-theme="cyberpunk">
+          <div class="theme-swatch swatch-cyberpunk"></div>
+          <h4>Cyberpunk Gold</h4>
+          <span class="theme-status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LVL 2 Unlocks</span>
+        </div>
+        <!-- Emerald Forest -->
+        <div class="theme-select-card locked" id="theme-card-emerald" data-theme="emerald">
+          <div class="theme-swatch swatch-emerald"></div>
+          <h4>Emerald Forest</h4>
+          <span class="theme-status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LVL 3 Unlocks</span>
+        </div>
+        <!-- Sunset Glow -->
+        <div class="theme-select-card locked" id="theme-card-sunset" data-theme="sunset">
+          <div class="theme-swatch swatch-sunset"></div>
+          <h4>Rose Sunset</h4>
+          <span class="theme-status"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> LVL 4 Unlocks</span>
+        </div>
+      </div>
+
+      <div class="modal-footer mt-6">
+        <button id="btn-close-themes-footer" class="primary-btn w-full">Apply Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN dependencies -->
+  <!-- GSAP Animation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Main Script -->
+  <script src="script.js"></script>
+</body>
+</html>
+
 </body>
         
 

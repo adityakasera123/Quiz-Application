@@ -1700,4 +1700,4 @@ function toggleMute() {
   } else {
     soundIcon.classList.remove("hidden");
     muteIcon.classList.add("hidden");
-    btn.classList.remove("active");
+    btn.classList.remove("active");.
