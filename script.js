@@ -1700,4 +1700,197 @@ function toggleMute() {
   } else {
     soundIcon.classList.remove("hidden");
     muteIcon.classList.add("hidden");
-    btn.classList.remove("active");.
+    btn.classList.remove("active");
+  // Quick test play synthesized sounds to verify
+    AudioSynth.playSound("correct");
+  }
+}
+
+// ==================== 8. MODAL HANDLERS ====================
+const ModalController = (() => {
+  const statsModal = document.getElementById("modal-stats-view");
+  const themesModal = document.getElementById("modal-themes-view");
+
+  function openStats() {
+    renderAnalytics();
+    statsModal.classList.remove("hidden");
+    
+    // GSAP Modal Zoom entrance
+    gsap.fromTo(statsModal.querySelector(".modal-card"),
+      { opacity: 0, scale: 0.9 },
+      { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.5)" }
+    );
+  }
+
+  function closeStats() {
+    gsap.to(statsModal.querySelector(".modal-card"), {
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.2,
+      ease: "power2.in",
+      onComplete: () => statsModal.classList.add("hidden")
+    });
+  }
+
+  function openThemes() {
+    if (!state.user) return;
+    updateThemeSelectCards();
+    themesModal.classList.remove("hidden");
+    
+    // GSAP Modal Zoom entrance
+    gsap.fromTo(themesModal.querySelector(".modal-card"),
+      { opacity: 0, scale: 0.9 },
+      { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.5)" }
+    );
+  }
+
+  function closeThemes() {
+    gsap.to(themesModal.querySelector(".modal-card"), {
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.2,
+      ease: "power2.in",
+      onComplete: () => themesModal.classList.add("hidden")
+    });
+  }
+
+  return { openStats, closeStats, openThemes, closeThemes };
+})();
+
+// ==================== 9. EVENT LISTENERS ATTACHMENTS ====================
+document.addEventListener("DOMContentLoaded", () => {
+  
+  // Ambient spinning
+  ViewController.initAmbientAnimations();
+  // Set sun/moon based on cached values
+  initThemeState();
+
+  // 1. AUTH SCREEN TRIGGERS
+  const tabLogin = document.getElementById("tab-login");
+  const tabSignup = document.getElementById("tab-signup");
+  const formLogin = document.getElementById("form-login");
+  const formSignup = document.getElementById("form-signup");
+  const btnGuest = document.getElementById("btn-guest");
+
+  tabLogin.addEventListener("click", () => {
+    tabLogin.classList.add("active");
+    tabSignup.classList.remove("active");
+    formLogin.classList.remove("hidden");
+    formSignup.classList.add("hidden");
+  });
+
+  tabSignup.addEventListener("click", () => {
+    tabSignup.classList.add("active");
+    tabLogin.classList.remove("active");
+    formSignup.classList.remove("hidden");
+    formLogin.classList.add("hidden");
+  });
+
+  formLogin.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const loginId = document.getElementById("login-email").value.trim();
+    const pass = document.getElementById("login-password").value;
+    
+    const userMatched = StorageManager.getUser(loginId, pass);
+    if (userMatched) {
+      state.user = userMatched;
+      ViewController.showScreen("landing");
+      AudioSynth.playSound("correct");
+    } else {
+      alert("Invalid mock credentials. Hint: use admin / admin for demo review.");
+      AudioSynth.playSound("wrong");
+    }
+  });
+
+  formSignup.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("signup-username").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const pass = document.getElementById("signup-password").value;
+
+    const res = StorageManager.createUser(name, email, pass);
+    if (res.success) {
+      state.user = res.user;
+      ViewController.showScreen("landing");
+      AudioSynth.playSound("correct");
+    } else {
+      alert(res.msg);
+      AudioSynth.playSound("wrong");
+    }
+  });
+
+  btnGuest.addEventListener("click", () => {
+    state.user = null; // Guest mode
+    ViewController.showScreen("landing");
+  });
+
+  // 2. LANDING SCREEN TRIGGERS
+  document.getElementById("btn-start-landing").addEventListener("click", () => {
+    ViewController.showScreen("setup");
+  });
+
+  document.getElementById("btn-dashboard-trigger").addEventListener("click", () => {
+    ModalController.openStats();
+  });
+
+  // 3. SETUP SCREEN TRIGGERS
+  document.getElementById("btn-setup-back").addEventListener("click", () => {
+    ViewController.showScreen("landing");
+  });
+
+  document.getElementById("btn-sandbox-auth-redirect").addEventListener("click", () => {
+    ViewController.showScreen("auth");
+  });
+
+  document.getElementById("btn-launch-quiz").addEventListener("click", () => {
+    ViewController.showScreen("quiz");
+  });
+
+  // Pro Sandbox Duration Slider input event
+  const timeSlider = document.getElementById("custom-time-limit");
+  const timeSliderLabel = document.getElementById("time-limit-val");
+  timeSlider.addEventListener("input", (e) => {
+    timeSliderLabel.textContent = `${e.target.value}s`;
+  });
+
+  // 4. RESULTS DASHBOARD TRIGGERS
+  document.getElementById("btn-retry").addEventListener("click", () => {
+    ViewController.showScreen("quiz");
+  });
+
+  document.getElementById("btn-review").addEventListener("click", () => {
+    ViewController.showScreen("review");
+  });
+
+  document.getElementById("btn-results-home").addEventListener("click", () => {
+    ViewController.showScreen("landing");
+  });
+
+  // 5. REVIEW SCREEN TRIGGERS
+  document.getElementById("btn-review-back").addEventListener("click", () => {
+    ViewController.showScreen("results");
+  });
+
+  // 6. GLOBAL HEADER CONTROLS TRIGGERS
+  document.getElementById("btn-sound").addEventListener("click", toggleMute);
+  document.getElementById("btn-theme").addEventListener("click", toggleTheme);
+  document.getElementById("btn-stats").addEventListener("click", () => {
+    ModalController.openStats();
+  });
+
+  // Profile Dropdown display toggle
+  const profileTrigger = document.getElementById("profile-trigger");
+  const profileDropdown = document.getElementById("profile-dropdown");
+  profileTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isExpanded = profileTrigger.getAttribute("aria-expanded") === "true";
+    profileTrigger.setAttribute("aria-expanded", !isExpanded);
+    profileDropdown.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!profileDropdown.classList.contains("hidden") && !profileDropdown.contains(e.target) && e.target !== profileTrigger) {
+      profileDropdown.classList.add("hidden");
+      profileTrigger.setAttribute("aria-expanded", "false");
+    }
+  });
