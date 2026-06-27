@@ -1894,3 +1894,44 @@ document.addEventListener("DOMContentLoaded", () => {
       profileTrigger.setAttribute("aria-expanded", "false");
     }
   });
+  // Profile actions menu triggers
+  document.getElementById("btn-dropdown-stats").addEventListener("click", () => {
+    profileDropdown.classList.add("hidden");
+    ModalController.openStats();
+  });
+
+  document.getElementById("btn-dropdown-themes").addEventListener("click", () => {
+    profileDropdown.classList.add("hidden");
+    ModalController.openThemes();
+  });
+
+  document.getElementById("btn-logout").addEventListener("click", () => {
+    state.user = null;
+    profileDropdown.classList.add("hidden");
+    ViewController.showScreen("auth");
+  });
+
+  // 7. MODALS TRIGGERS
+  // Stats Modal close
+  document.getElementById("btn-close-stats").addEventListener("click", ModalController.closeStats);
+  document.getElementById("btn-close-stats-footer").addEventListener("click", ModalController.closeStats);
+  document.getElementById("modal-stats-overlay").addEventListener("click", ModalController.closeStats);
+
+  // Themes Modal close
+  document.getElementById("btn-close-themes").addEventListener("click", ModalController.closeThemes);
+  document.getElementById("btn-close-themes-footer").addEventListener("click", ModalController.closeThemes);
+  document.getElementById("modal-themes-overlay").addEventListener("click", ModalController.closeThemes);
+
+  // Theme card selectors
+  const themeCards = document.querySelectorAll(".theme-select-card");
+  themeCards.forEach(card => {
+    card.addEventListener("click", () => {
+      const themeVal = card.dataset.theme;
+      if (card.classList.contains("locked")) {
+        alert("This theme preset is currently locked. Gain XP and level up your profile to unlock it!");
+      } else {
+        applyCustomThemePreset(themeVal);
+      }
+    });
+  });
+  
