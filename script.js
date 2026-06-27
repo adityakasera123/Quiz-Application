@@ -1934,4 +1934,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-  
+
+  // Stats reset trigger
+  document.getElementById("btn-reset-stats").addEventListener("click", () => {
+    if (confirm("Are you sure you want to permanently delete your entire local quiz history?")) {
+      const name = state.user ? state.user.username : null;
+      StorageManager.clearHistory(name);
+      renderAnalytics();
+    }
+  });
+
+});
