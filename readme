@@ -1,0 +1,107 @@
+# 🧠 QuizMaster Pro
+
+A premium, dark-themed SaaS-style coding quiz platform built with vanilla HTML, CSS, and JavaScript. Test your programming knowledge across multiple categories, level up your profile, earn XP, unlock custom themes, and track your performance over time — all running entirely in the browser with `localStorage`.
+
+![Made with HTML](https://img.shields.io/badge/HTML-5-orange)
+![Made with CSS](https://img.shields.io/badge/CSS-3-blue)
+![Made with JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+
+---
+
+## ✨ Features
+
+- **Authentication (Mock SaaS)** — Sign up, log in, or explore as a guest. Demo credentials: `admin` / `admin`
+- **54 Coding Questions** across Easy, Medium, and Hard difficulty levels
+- **7 Categories** — JavaScript, HTML/CSS, Java, C++, Data Structures, Fundamentals, and Logical Reasoning
+- **Pro Sandbox Mode** (unlocked after login) — filter by category, set a custom question timer, and enable Sudden Death mode
+- **XP & Leveling System** — earn XP for correct answers, level up, and unlock new accent themes
+- **Custom Themes** — Default Neon, Cyberpunk Gold, Emerald Forest, and Rose Sunset (unlocked by leveling up)
+- **Light/Dark Mode Toggle**
+- **Sound Effects** — synthesized using the Web Audio API (no external audio files)
+- **Live Score & Countdown Timer** with animated SVG ring
+- **Results Dashboard** — accuracy gauge, XP earned, performance badges, and detailed stats
+- **Answer Review Screen** — see exactly which questions you got right or wrong
+- **Analytics Modal** — lifetime stats and recent attempt history, stored in `localStorage`
+- **Smooth Animations** powered by GSAP, plus confetti celebration on high scores
+
+---
+
+## 🛠️ Tech Stack
+
+- **HTML5** — semantic structure
+- **CSS3** — custom design system with CSS variables, glassmorphism, responsive layout
+- **JavaScript (ES6+)** — vanilla JS, no frameworks
+- **[GSAP](https://greensock.com/gsap/)** — animations
+- **[canvas-confetti](https://www.npmjs.com/package/canvas-confetti)** — celebration effects
+- **Web Audio API** — synthesized sound effects
+- **localStorage** — user accounts, XP, and quiz history persistence
+
+---
+
+## 📁 Project Structure
+
+```
+quizmaster-pro/
+├── index.html      # Main HTML structure (all screens & modals)
+├── style.css       # Design system, themes, and responsive layout
+├── script.js       # App logic, state management, quiz engine
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+No build tools or dependencies required — it's a static site.
+
+### Option 1: Open directly
+
+Simply open `index.html` in your browser.
+
+### Option 2: Run with a local server (recommended)
+
+Using VS Code's **Live Server** extension, or:
+
+```bash
+# Using Python
+python -m http.server 8000
+
+# Using Node.js
+npx serve
+```
+
+Then visit `http://localhost:8000` (or the port shown).
+
+---
+
+## 🎮 How to Use
+
+1. **Sign up**, **log in** (try `admin` / `admin`), or continue as a **Guest**
+2. From the landing page, click **Configure Session**
+3. Choose difficulty and number of questions
+4. _(Logged-in users only)_ Customize categories, timer duration, and enable Sudden Death in the **Pro Sandbox**
+5. Click **Start Challenge** and answer the questions before time runs out
+6. View your **Results Dashboard** — accuracy, XP earned, and your performance badge
+7. Check **Review Answers** to see a full breakdown, or open **Analytics** from the profile menu to track your history
+8. Level up to unlock new **custom themes** from the profile dropdown
+
+---
+
+## 🗺️ Roadmap / Ideas
+
+- [ ] Backend integration for real user accounts
+- [ ] Leaderboard across users
+- [ ] More question categories
+- [ ] Daily challenge mode
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
